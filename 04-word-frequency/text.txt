@@ -1,0 +1,758 @@
+🎯 Slide 1: Reinforcement Learning Overview
+Reinforcement Learning (RL) is basically how you'd teach a dog tricks — but for a computer program.
+There are 4 key players in this game:
+
+Agent — the learner. Could be a program, code, or robot. Think of it as "the student" trying to figure out what to do. In the picture, it's the game controller (representing whoever is playing Pacman).
+Environment — the world the agent lives in. For Pacman, it's the maze with ghosts and dots.
+Action — what the agent does (move up, down, left, right).
+State — a snapshot of the environment at a given moment (where Pacman is, where ghosts are, where dots are).
+Reward — feedback the agent gets after acting (eat a dot = +points, get caught by ghost = -points).
+
+The loop: Agent looks at the state → picks an action → environment responds with a new state + reward → agent learns from that → repeat.
+That cycle is the heart of RL. Everything else builds on it.
+
+🧠 Slide 2: RL Introduction (the deeper "why")
+Now that you know the players, here's what RL is actually trying to do:
+
+It solves sequential decision-making problems. Meaning: you don't make one decision and you're done. You make decision after decision after decision (multiple decisions in a sequential manner...like every move in chess) to reach a goal
+The objective: learn to act optimally — pick the best possible action at every step, every time.
+Feedback comes via rewards — positive (good), negative (bad), or neutral (meh). The agent doesn't get told "do X"; it just gets a score after acting and has to figure out what's working.
+Total rewards collected = how good the agent is. More reward = better agent. Simple measuring stick.
+The agent MUST act in the environment to learn. This is huge — RL isn't like reading a textbook. The agent learns by doing. Trial and error. Bumping into stuff.
+The agent learns two things simultaneously:
+Which actions are good/bad
+Which states are good/bad (e.g., "being next to a ghost = bad state")
+
+🟫 Slide 3: Example — Grid World
+Now they give you a concrete example to make this real. Grid World is the classic RL teaching example.
+The setup:
+
+A small grid (like a maze). The agent lives in one cell at a time.
+There's a start position and a goal (the +1 diamond).
+There's a trap (the -1 fire/explosion).
+Walls block movement.
+
+Noisy movement (this is the important twist):
+Actions don't always do what you tell them to do. If you say "go North":
+
+80% of the time → actually goes North ✅
+10% of the time → slips West ⬅️
+10% of the time → slips East ➡️
+If there's a wall in the way → agent just stays put
+
+This mimics real life — a real robot might skid, a real car might slip on ice. Plans don't always work perfectly.
+Rewards in Grid World:
+
+Living reward every step (often a small negative number, like -0.01). Why negative? To push the agent to hurry up and reach the goal — otherwise it could just wander forever.
+Big rewards at the end: +1 for reaching the goal, -1 for falling in the trap.
+
+Goal: Get to the +1 while maximizing total rewards (which means reaching the goal fast, and avoiding the -1).
+
+🎲 Slide 4: Grid World Action Outcomes (Deterministic vs Stochastic)
+This slide makes the "noisy movement" idea crystal clear by showing two types of worlds:
+Deterministic Grid World (left side):
+
+You say "go up" → agent goes up. 100% guaranteed.
+One action = one outcome. Predictable.
+
+Stochastic Grid World (right side):
+
+You say "go up" → could go up, could slip left, could slip right.
+One action = multiple possible outcomes (with different probabilities).
+The "?" symbol shows the uncertainty.
+
+
+💡 Why this matters: Real-world problems are almost always stochastic. RL is designed to handle this uncertainty. This is also what makes RL harder than just plain search algorithms.
+
+🧮 Slide 5: Markov Decision Processes (MDP)
+This is THE most important slide for your exam. RL problems are formally defined as MDPs.
+An MDP has 4 ingredients (memorize these — your exam Q6 is asking exactly for these):
+Symbol           Meaning                 Plain English
+S                Set of states          All possible situations the agent could be in
+A                Set of actions         All possible moves the agent could make
+T(s, a, s′)      Transition function   "If I'm in state s and do action a, what's the probability I end up in state s′?"
+R(s, a, s′)      Reward function       "If I went from s to s′ by doing a, what reward do I get?"
+
+Why "Markov"? Markov means: the future depends only on the present, not the past. The agent only needs to know its current state to decide what to do — not the entire history of how it got there. This makes the math way more tractable.
+
+ow they apply the MDP framework to Pacman to show you how to actually fill in the four ingredients:
+States (everything the agent needs to know):
+
+Position of Pacman (x, y coordinates)
+Position of closest food
+Position of ghost 1
+Position of ghost 2
+(etc.)
+
+Actions: Up, Down, Left, Right. Simple.
+Transitions: Deterministic — when Pacman moves up, he actually moves up. No slipping here.
+Rewards:
+
+Each step: -1 (living penalty, encourages speed)
+Eat food: +2
+Eat power food: +5
+Eat ghost: +10 (best!)
+Get eaten by ghost: -10 (worst)
+
+Slide 7: MDP Example — Robot
+Same template, different scenario. A robot navigating a room:
+States:
+
+Position of the robot
+Distance in front, back, left, right (measured in 10 cm windows — basically how close walls/obstacles are)
+
+Actions: Front, Back, Left, Right (moves 2 cm per time step — slow and steady)
+Transitions: Non-deterministic — because robots can skid in real life. So the action might not perfectly happen.
+Rewards:
+
+Each step: -1 (don't dawdle)
+Reaching the goal: +10
+
+How it all connects so far
+
+RL = agent learns by doing in an environment, guided by rewards.
+RL problems are formalized as MDPs (states, actions, transitions, rewards).
+Worlds can be deterministic (predictable) or stochastic (noisy/uncertain).
+To solve an RL problem, you first define the MDP — then apply algorithms (like Q-learning).
+
+📚 Slide 8: Some RL Terminologies
+Think of this as the RL dictionary. Each term will keep showing up, so let's lock them in:
+1. Reward
+The numeric value you get after taking an action. Could be +5 (good), -10 (bad), or 0 (nothing happened). It's the agent's only feedback signal from the environment.
+2. Learning Objective
+Collect maximum rewards (by acting optimally at every step). That's the whole game. 
+3. Value Function (like Q-value)
+A function that tells you "how good is this situation?" — either how good a state is, or how good taking an action in a state is.
+The Q-value specifically answers: "If I'm in state s and I take action a, how much total reward can I expect to get?" (More on this in the next slide.)
+
+4. Discounting: Discounting means: a reward you get now is worth more than the same reward you'd get later. 
+Why discount? Because future rewards are uncertain. A reward 10 steps from now might never happen (you could die, the environment could change).
+
+γ is a number between 0 and 1.
+γ = 0 → "I only care about right now, screw the future."
+γ = 1 → "Future rewards matter just as much as immediate ones."
+γ = 0.9 (typical) → "Future rewards count, but a little less than immediate ones."
+
+5. Learning Rate (alpha, α)
+This decides how much weight to give to new information vs. what you already learned.
+
+α is between 0 and 1.
+α = 0 → "I refuse to learn anything new. I'm stuck in my ways."
+α = 1 → "Forget everything I knew before, the new info is all that matters."
+α = 0.5 (your exam) → "Half old knowledge, half new knowledge."
+
+Every step into the future, you multiply the reward by γ to shrink it (if gamma=1, no shrinking happens) so the agent prefers sooner rewards over later ones.
+
+6. Policy (π)
+The strategy — a rule that says "in this situation, do this action." It's the agent's brain. We'll cover this on slide 10.
+
+7. Exploration Strategy (epsilon-greedy)
+see ahead slides
+
+🟩 Slide 9: Value Function — Q-values
+Now let's actually understand Q-values, because Q-learning is built on these.
+What is Q(s, a)?
+
+Q(s, a) = the value of taking action a from state s.
+Reward = the immediate feedback for ONE action. Just what you get right now.
+Q-value = the total expected reward you'll collect if you take this action AND then keep playing optimally afterward.
+
+Pacman example
+Imagine Pacman is in a corridor. He has two choices:
+Action A: Move right → eats a dot (+2 reward), but then a ghost is waiting and eats him next turn (-10).
+Action B: Move left → nothing there (0 reward), but it leads to a power pellet, then 5 dots, then the goal (lots of future reward).
+If you only looked at immediate reward:
+
+Right = +2 (looks great!)
+Left = 0 (looks boring)
+
+You'd pick Right. And you'd lose.
+But if you look at Q-value (which includes future consequences):
+
+Q(state, Right) = +2 + (future) = +2 + (-10) = -8 😱
+Q(state, Left) = 0 + (future) = 0 + (lots of good stuff) = +15 🎉
+
+Now Left clearly wins.
+
+
+💡 So Q-value = "immediate reward + all the future rewards I'll get after this, discounted, if i play optimally"
+Reward is short-sighted. Q-value is the whole picture.
+
+Now: "Learning the Q-values"
+This is where the magic happens. Initially, the agent has no idea what any Q-value is. So it just sets them all to 0:
+Q(every state, every action) = 0
+The agent is basically clueless — like a baby. It doesn't know which actions are good.
+How does it learn?
+It tries stuff, sees what happens, and updates its Q-values based on the rewards it observes.
+Here's the loop:
+
+Agent is in state s.
+Picks action a (maybe randomly at first since it knows nothing).
+Lands in new state s′ and gets reward r.
+Updates Q(s, a) using the formula:
+
+
+Q(s, a) ← Q(s, a) + α × [r + γ × max Q(s′, a′) − Q(s, a)]
+
+This is the formula from your exam Q5! Let me translate it into English:
+New Q(s,a)  =  Old Q(s,a)  +  α × (what I just learned − what I thought before)
+Where "what I just learned" = the immediate reward + the best future Q-value from the next state.
+So basically: "Adjust my old guess a little bit toward what I just experienced."
+Over many, many tries, the Q-values slowly become accurate predictions of total reward.
+
+Why "learning Q-values = solving the problem"
+Because once the Q-values are accurate, decision-making is trivial:
+
+"I'm in state s. Look up Q(s, all actions). Pick the action with the highest Q-value. Done."
+
+You don't need to plan ahead, simulate, or think hard. The Q-values already encode all the future planning — that's the whole point of including future rewards in them.
+So the entire learning problem in RL boils down to: fill in the Q-table accurately. That's it. That's Q-learning.
+
+
+How do you get a policy from Q-values?
+
+π(state) → the action with the highest Q-value
+
+This is the connection between slides 9 and 10:
+
+Learn the Q-values (slide 9).
+Build the policy by always picking the action with the highest Q-value in each state (slide 10).
+
+How everything ties together (your mental map so far)
+RL Problem
+   ↓
+Define as an MDP (states, actions, transitions, rewards)
+   ↓
+Agent explores the environment (trial & error)
+   ↓
+Learns Q-values for each (state, action) pair
+   ↓
+Builds a Policy: "in state s, do the action with highest Q-value"
+   ↓
+Follows the policy to maximize total rewards 
+
+🔄 Slide 12: Q-Learning — Value Update (Conceptual)
+This slide explains what an "experience" looks like and what info the agent gets from it.
+The setup:
+The agent is in state s. It takes action a (using its current policy π(s)). Two things happen:
+
+It lands in a new state s′.
+It receives a reward r.
+
+That's one "experience" — also called a sample or a transition.
+What did the agent "discover"?
+After this experience, the agent now has access to:
+
+r → the reward it just got (concrete, just observed)
+Q(s′, a′) → the Q-values of the new state for all possible next actions (these are predictions the agent has stored from past experiences).
+So the agent has two pieces of info: what it just got (immediate reward) AND what it estimates is possible from the new state (future expectations).
+
+💡 Why this matters: This is exactly the idea we covered earlier — Q-value = immediate reward + future reward potential. This slide is showing where each piece comes from.
+
+🧮 Slide 13: Q-Learning — Value Update (The Formula)
+Step 1: What's a "sample"?
+
+Sample = r + γ · max Q(s′, a′)
+
+Translation: The sample is the agent's best guess of the total value it just experienced.
+
+r = the reward it just received
+γ · max Q(s′, a′) = the discounted best-possible future reward from the new state
+
+Why "max"? Because the agent assumes it'll act optimally from the next state onward (always pick the best action)
+
+Step 2: How does the agent combine the sample with what it already knew?
+It blends them using α (learning rate):
+
+Q(s, a) = α · (sample) + (1 − α) · Q(s, a)
+
+Read this like a weighted average:
+
+α weight goes to the new info (the sample)
+(1 − α) weight goes to the old Q-value
+
+If α = 0.5, it's a 50/50 blend. If α = 0.1, you trust the old value more (mostly old, a little new).
+Substituting "sample" with its actual formula:
+
+Q(s, a) = α · [r + γ · max Q(s′, a′)] + (1 − α) · Q(s, a)
+
+Same equation, just expanded.
+
+Step 3: The "more common" form (the one in your exam!)
+Q(s, a) = Q(s, a) + α · [r + γ · max Q(s′, a′) − Q(s, a)]
+
+This is mathematically identical to step 2 (just rearranged), and it's the version you'll use on the exam.
+
+How to read it intuitively:
+
+New Q(s,a) = Old Q(s,a) + α × (what I just observed − what I expected)
+The bracket [r + γ · max Q(s′, a′) − Q(s, a)] is called the TD error (temporal difference error). It measures surprise:
+
+If positive → "Wow, that was better than I expected!" → bump Q up
+If negative → "Hmm, that was worse than I expected" → drop Q down
+If zero → "Yep, exactly what I thought" → no change
+α controls how much you let surprises change your mind.
+
+Yeah, fair — I threw "function" and "expected return" at you without grounding them. Let me redo this whole part cleanly.
+
+---
+
+## 🎯 Slide 14: Optimal Policy — Redone
+
+### First, let's recall what a policy is
+
+A **policy is the agent's strategy** — a rulebook that says "when you're in this situation, do this."
+
+For example, a policy could look like this:
+
+| State (where you are) | Action (what you do) |
+|---|---|
+| Top-left corner | Go Right |
+| Middle cell | Go Up |
+| Next to the trap | Go Left |
+| Near the goal | Go Up |
+
+So a policy is basically a **lookup table**: state → action. You give it a state, it tells you what to do.
+
+---
+
+### Why is it called a "function"?
+
+Don't let the math word scare you. In plain English:
+
+> A **function** is just something that takes an input and gives you an output.
+
+A coffee machine is a function: input = button press, output = coffee.
+
+A policy is a function:
+- **Input:** a state (where the agent is)
+- **Output:** an action (what to do)
+
+That's literally all "function" means here. **Policy = strategy = function from states to actions.** They're the same thing said three different ways. ✅
+
+The notation **π: S → A** just means "policy π takes a state from set S and gives back an action from set A." Fancy way of writing the lookup table above.
+
+---
+
+### Now: what is an OPTIMAL policy?
+
+A regular policy could be any strategy — even a bad one!
+
+For example, a terrible policy might say:
+- Top-left corner → Walk into the wall
+- Middle cell → Walk into the trap
+- Near the goal → Walk away from goal
+
+That's a valid policy. It's just a bad one. 😅
+
+The **optimal policy** (written **π*** with a star) is the **best possible** strategy — the one where, if you follow it, you collect the most rewards possible.
+
+
+### How does Q-learning help us find π*?
+
+Remember: **Q(s, a)** tells you "how good is taking action a from state s, in terms of future total reward."
+
+So if you know all the Q-values accurately, finding the optimal action at any state is *trivial*:
+
+> **Just pick the action with the highest Q-value at that state.**
+
+Written formally:
+> **π*(s) = the action with the highest Q(s, a)**
+
+Which means: "The optimal policy says: in state s, pick the action whose Q-value is the biggest."
+
+⚖️ Slide 15: Policy Types
+Two flavors of policies the agent can use while choosing actions:
+1. Greedy Policy
+
+"Always pick the action with the highest Q-value."
+
+
+Always exploits what it already knows.
+Used during testing (when learning is done and you just want performance).
+
+Problem during training: If you're always greedy, you might get stuck on a "decent" path and never discover a better one.
+2. Exploration-Based Policy (Epsilon-Greedy)
+
+"Sometimes pick the best action, sometimes pick a random one to explore."
+
+
+Used during training (so the agent explores enough to actually learn).
+
+🔍 Slide 16: Exploration-Based Policy (the Why)
+Two key reasons we need exploration:
+1. "We need to sample from the environment and visit all states."
+If the agent only ever goes left, it'll never learn what happens when it goes right. To build accurate Q-values, the agent needs to try lots of different things — visit many states, take many actions.
+2. "Randomness leads to discovering better paths."
+A purely greedy agent commits to whatever looks best right now — but might miss a much better path it never tried. Some randomness forces it to take risks and potentially find treasure.
+
+🎲 Slide 17: Epsilon-Greedy Explained
+Epsilon-greedy is the most common exploration policy. Here's the rule:
+
+With probability ε → take a random action (explore)
+With probability (1 − ε) → take the greedy action (exploit)
+
+Example: If ε = 0.1:
+
+10% of the time → random action (try new things)
+90% of the time → best-known action (use what works)
+
+You pick ε based on how much exploration you want:
+
+High ε (0.5) = lots of exploration, useful early in training
+Low ε (0.05) = mostly exploit, useful late in training when Q-values are reliable
+
+🔁 Slide 18: A Simple View of Q-Learning (the loop)
+This is the whole algorithm in 5 steps, on repeat:
+1. Initialize Q-Table (all zeros, or random)
+       ↓
+2. Choose an Action (using epsilon-greedy)
+       ↓
+3. Perform Action (act in environment)
+       ↓
+4. Measure Reward (and observe new state)
+       ↓
+5. Update Q-Table (using the formula)
+       ↓
+   (loop back to step 2)
+
+Run this loop thousands or millions of times → eventually the Q-Table converges to the true Q-values → the agent knows the optimal policy. Done.
+
+📜 Slide 19: Q-Learning Algorithm (Formal Pseudocode)
+Now the formal algorithm. It's the same loop, just written like code:
+Require: discount factor γ, learning rate α
+1: Initialize Q(s,a) arbitrarily
+2: for all episodes do
+3:    Initialize starting state s
+4:    repeat
+5:       Choose action a using Q and exploration strategy
+6:       Execute a
+7:       Observe next state s' and receive reward r
+8:       Update: Q(s,a) ← Q(s,a) + α[r + γ max_a' Q(s',a') − Q(s,a)]
+9:       s := s'   ← (move to the new state)
+10:   until s' is terminal state
+11: end for
+What's an "episode"?
+One complete run from start to a terminal state (e.g., one full Pacman game from start to game over). The agent runs many episodes to learn.
+Line-by-line:
+
+Line 1: Start with a Q-table full of guesses (often zeros).
+Line 2: Loop over many episodes.
+Line 3: Reset to starting state at the beginning of each episode.
+Line 4–10: Inside each episode, keep acting until you hit a terminal state.
+
+Line 5: Pick an action (using epsilon-greedy).
+Line 6–7: Execute it, observe reward and new state.
+Line 8: Update Q-value using the formula. ⭐
+Line 9: Move to new state, continue.
+
+
+
+This is the engine of Q-learning. You repeat it until the agent gets good.
+
+🔗 Putting it all together (your full mental map of Q-learning)
+1. Define MDP (states, actions, transitions, rewards)
+            ↓
+2. Initialize Q-table with zeros
+            ↓
+3. Loop many episodes:
+   a. Start at initial state
+   b. Pick action via epsilon-greedy (explore vs exploit)
+   c. Take action → observe reward r and new state s'
+   d. Update Q(s,a) using the formula:
+      Q(s,a) = Q(s,a) + α[r + γ·max Q(s',a') − Q(s,a)]
+   e. Move to new state, repeat until terminal
+            ↓
+4. After enough learning, Q-table is accurate
+            ↓
+5. Optimal policy = pick max Q(s,a) at each state ✅
+
+## 🌍 The Setup: Robot in a Corridor
+
+The world is a 1-D corridor with 5 cells:
+
+```
+[ A ]  [ B ]  [ C ]  [ D ]  [ E ]
+ -1                          +1
+```
+
+- **Start state:** C (the robot starts in the middle)
+- **A** has reward -1 (bad — like a trap)
+- **E** has reward +1 (goal — good)
+- **Actions available:** Left (L), Right (R), and at A and E there's an Exit action (which ends the episode and gives the reward)
+- **Environment:** Deterministic (action does what you say — no slipping)
+- **Living rewards:** 0 (no penalty for taking time)
+- **γ = 0.9, α = 0.5**
+- **Exploration:** Epsilon-greedy with ε = 0.14 → meaning **every 7th action is random**, the rest are greedy
+- **Tie-breaking rule:** When two Q-values are equal, **pick Right** (this is just a chosen heuristic)
+
+### The Q-table starts at all zeros:
+
+```
+Q(B,L)=0, Q(B,R)=0
+Q(C,L)=0, Q(C,R)=0
+Q(D,L)=0, Q(D,R)=0
+Q(A,exit)=0, Q(E,exit)=0
+```
+
+The agent will play multiple **episodes** (one episode = start → reach a terminal state).
+
+> Reminder: the formula is **Q(s, a) = Q(s, a) + α[r + γ·max Q(s′, a′) − Q(s, a)]**
+
+---
+
+## 📺 Episode 1
+
+### **Action 1: At state C**
+
+- Q(C,L) = 0, Q(C,R) = 0 → tied → use tie-breaking → **go Right**
+- (This is the **1st** action, so we use greedy)
+- Robot moves to **state D**, reward = 0
+
+**Update Q(C, R):**
+- max Q(D, a′) = max(Q(D,L), Q(D,R)) = max(0, 0) = 0
+- Q(C, R) = 0 + 0.5 × [0 + 0.9 × 0 − 0] = **0**
+
+So Q(C, R) stays at 0. (Makes sense — the robot didn't get any reward, and the next state doesn't have any Q-value either yet. There's nothing to learn from this experience.)
+
+Now **s = D**.
+
+---
+
+### **Action 2: At state D**
+
+- Q(D,L) = 0, Q(D,R) = 0 → tied → **go Right**
+- Robot moves to **state E**, reward = 0
+
+**Update Q(D, R):**
+- E has only one action (exit), and Q(E,exit) = 0 → max Q(E, a′) = 0
+- Q(D, R) = 0 + 0.5 × [0 + 0.9 × 0 − 0] = **0**
+
+Still 0. Same reason — no reward yet, no future info either.
+
+Now **s = E**.
+
+---
+
+### **Action 3: At state E**
+
+- Only one action available: **exit**
+- Robot exits. Reward = **+1** 🎉
+- This ends the episode.
+
+**Update Q(E, exit):**
+- There's no state after E (terminal) → max Q(s′, a′) = 0
+- Q(E, exit) = 0 + 0.5 × [1 + 0.9 × 0 − 0] = **0.5**
+
+🔥 **First non-zero Q-value!** The robot has now learned: "Exiting from E is worth about 0.5."
+
+### Q-table after Episode 1:
+```
+Q(B,L)=0,    Q(B,R)=0
+Q(C,L)=0,    Q(C,R)=0
+Q(D,L)=0,    Q(D,R)=0
+Q(A,exit)=0, Q(E,exit)=0.5  ← updated!
+```
+
+> 💡 **Key insight:** Notice how the +1 reward only affected **the very last action** (exiting from E). The Q-values for C and D didn't change because at the time of those updates, the robot didn't yet know E was good. **Knowledge has to "propagate backward" over multiple episodes.** This is why RL needs many episodes.
+
+---
+
+## 📺 Episode 2
+
+Robot resets to **state C**.
+
+### **Action 4: At state C**
+
+- Q(C,L) = 0, Q(C,R) = 0 → tied → **go Right** (4th action, still greedy)
+- Robot moves to **state D**, reward = 0
+
+**Update Q(C, R):**
+- max Q(D, a′) = max(0, 0) = 0
+- Q(C, R) = 0 + 0.5 × [0 + 0.9 × 0 − 0] = **0**
+
+Still 0. (D doesn't know anything good yet either.)
+
+---
+
+### **Action 5: At state D**
+
+- Q(D,L) = 0, Q(D,R) = 0 → tied → **go Right** (5th action, greedy)
+- Robot moves to **state E**, reward = 0
+
+**Update Q(D, R):**
+- max Q(E, a′) = Q(E, exit) = **0.5** ← THIS time we know something!
+- Q(D, R) = 0 + 0.5 × [0 + 0.9 × 0.5 − 0]
+- = 0 + 0.5 × 0.45
+- = **0.225**
+
+🔥 **Now Q(D, R) becomes 0.225!** The information about E's value just propagated one cell backward to D.
+
+> 💡 **This is the magic of Q-learning.** Each episode, the rewards "leak backward" one step, gradually teaching the agent which earlier states/actions lead to good outcomes.
+
+---
+
+### **Action 6: At state E**
+
+- Only action: **exit**, reward = +1
+- Episode ends.
+
+**Update Q(E, exit):**
+- max Q(s′, a′) = 0 (terminal)
+- Previous Q(E, exit) = 0.5
+- Q(E, exit) = 0.5 + 0.5 × [1 + 0.9 × 0 − 0.5]
+- = 0.5 + 0.5 × 0.5
+- = **0.75**
+
+### Q-table after Episode 2:
+```
+Q(B,L)=0,    Q(B,R)=0
+Q(C,L)=0,    Q(C,R)=0
+Q(D,L)=0,    Q(D,R)=0.225  ← updated!
+Q(A,exit)=0, Q(E,exit)=0.75  ← updated!
+```
+
+Notice:
+- Q(E, exit) is getting closer to its true value (which would be 1 if α=1)
+- Q(D, R) now has positive value because it leads to E
+- Q(C, R) is still 0 because at the time it was updated, D's Q-values were still 0
+
+---
+
+## 📺 Episode 3 begins (and the exploration twist!)
+
+Robot resets to **state C**. This is now the **7th** action overall.
+
+> ⚠️ **Important rule:** Every 7th action is random (not greedy). So now, instead of going greedy right, the robot picks **randomly** between left and right.
+
+The slide explains how to handle randomness on paper:
+- You're given a list of random numbers, e.g., [0.13, 0.91, 0.44, 0.37]
+- Use them in order, one per random action
+- If random number < 0.5 → go Left, else → go Right
+
+The slide ends with a quiz: **"Which Q-value will be updated next?"**
+
+The answer depends on the random number used. If the first random number (e.g., 0.13) is < 0.5, the robot goes **Left** to state B. Then **Q(C, L)** gets updated.
+
+---
+
+## 🔑 The Big Picture from this example
+
+Let's connect what just happened to all the concepts you've learned:
+
+### 1. Why episodes matter
+One episode alone barely teaches anything — only Q(E, exit) got updated in episode 1. It takes **many episodes** for the reward signal to propagate backward through the chain of states.
+
+### 2. How rewards "propagate backward"
+- Episode 1: only E learned something
+- Episode 2: D learned (because E now had value to inherit)
+- Episode 3+: C will eventually learn (because D now has value to inherit)
+- And so on, until the entire path back to the start has accurate Q-values
+
+### 3. Why exploration matters
+If the robot only ever went right (greedy), it would never try going left and never discover whether B or A might lead somewhere useful. **Epsilon-greedy forces it to occasionally try left** — that's why every 7th action is random.
+
+### 4. The formula in action
+Every single update was just plugging into:
+> **Q(s, a) = Q(s, a) + α[r + γ·max Q(s′, a′) − Q(s, a)]**
+
+with α=0.5, γ=0.9. That's it. **The whole algorithm is just running this formula many, many times.**
+
+ 5. The role of γ (discount)
+Notice how Q(D, R) = 0.225, while Q(E, exit) = 0.5 (after ep 1). Even after one update, D's value is **less than** E's because of γ=0.9 — the reward at E gets shrunk a bit by the time it affects D. The further from the reward, the more shrinkage.
+
+🧠 Slide 21: Q-Learning (Concepts & Theory)
+This slide is more conceptual — it labels what you've been doing and connects it to broader ideas in RL.
+Concept 1: What Q-learning is doing (formalized)
+
+"Q-learning updates the Q-value estimates using the immediate reward and the discounted value of the immediate successor state."
+
+This is just step 8 of the algorithm restated.
+
+Concept 2: Temporal Difference (TD) Learning
+
+"The approach of updating value estimates using immediate experience is generally known as temporal difference learning."
+
+This is just a fancy name for the family of algorithms Q-learning belongs to.
+"Temporal difference" = the difference between two estimates at different points in time:
+
+What you expected (old Q-value)
+What you just learned from the new experience (r + γ · max Q(s′, a′))
+
+The difference between these two — the "TD error" — is what drives the update.
+
+💡 So Q-learning is one specific type of TD learning. Other TD methods exist (like SARSA), but Q-learning is the most popular.
+
+Why "temporal"? Because you're comparing estimates from two different time steps (now vs. one step later). Time is the key dimension.
+
+Concept 3: Q-Learning is "Off-Policy"
+
+"Q-learning is classified as an off-policy learning method, which means it can learn the optimal policy even if the agent's actions during learning are sub-optimal or completely random."
+
+This is a big deal — let me explain.
+Two types of RL algorithms:
+TypeMeaningOn-policyLearns the value of the policy it's actually following. If your behavior is bad, it learns the value of the bad behavior.Off-policyLearns the value of the optimal policy, no matter what the agent is actually doing.
+Q-learning is off-policy. Why? Look at the formula:
+
+Q(s, a) = Q(s, a) + α · [r + γ · max Q(s′, a′) − Q(s, a)]
+
+That max is the key. When updating, the agent always assumes "from the next state, I'll act optimally" — even if it doesn't actually plan to.
+What this means in practice:
+
+The agent can wander randomly, take dumb actions, even act terribly during training...
+...and still learn the optimal policy.
+As long as it visits enough state-action pairs, it'll figure out what's best.
+
+📐 Slide 22: Q-Learning Convergence Conditions
+This slide gets a bit math-y, but the idea is simple.
+When does Q-learning guarantee finding the optimal policy?
+Two conditions:
+Condition 1: Each state-action pair is visited an infinite number of times
+Translation: "The agent has to try every possible action in every possible state, over and over, forever."
+Why? Because Q-learning learns from samples. If you never try Q(B, Left), you'll never know if it's good or bad. To be sure a Q-value is accurate, you need many samples of it.
+In practice: You don't actually need infinity — just "lots." Exploration (like epsilon-greedy) ensures the agent visits everything sufficiently often.
+
+Condition 2: The learning rate α decays over time
+The math:
+
+∑αₜ = ∞ AND ∑αₜ² < ∞
+
+Don't panic. In English, this means:
+
+∑αₜ = ∞ → the learning rates need to be big enough, summed up, to keep learning happening (i.e., α can't shrink so fast that it stops mattering).
+∑αₜ² < ∞ → the learning rates also need to shrink fast enough that updates eventually become small (so Q-values stabilize and don't keep wobbling).
+
+Practical translation:
+
+Early in training: α should be high (like 0.5) — agent is clueless, so let new info change Q-values a lot.
+Late in training: α should be small (like 0.01) — Q-values are already pretty accurate, so don't let new (potentially noisy) info mess them up.
+
+A common choice: α = 1/t (where t is the iteration number). It satisfies both conditions.
+
+💡 Think of it like learning a skill: When you're a beginner, every lesson teaches you a lot (high α). When you're an expert, only big surprises change your mind (low α).
+
+
+The good news (third bullet point):
+
+"In practice, the policy converges to optimal much earlier than the Q-values do, without infinite visits."
+
+Translation: Even though the theoretical guarantee requires infinite visits, in real life:
+
+The Q-values don't need to be perfectly accurate.
+They just need to be accurate enough that the action with the highest Q-value at each state is the truly best one.
+This happens way before Q-values are exact.
+
+Example: Suppose true Q(s, Up) = 0.9 and Q(s, Down) = 0.3. As long as the agent learns Q(s, Up) > Q(s, Down) — even with sloppy estimates like 0.6 vs 0.2 — the policy will still pick Up. Optimal policy ≠ optimal Q-values. Policy is easier.
+
+
+Final bullet:
+
+"This makes Q-learning practically applicable to a wide range of problems."
+
+This is the takeaway. The theory demands infinity, but the practice is forgiving — Q-learning works well in the real world.
+
+🌍 Slide 23: Other Applications of RL
+These are real-world places where RL (and Q-learning especially) is used. You don't need to memorize this for an exam, but it's useful context:
+ApplicationWhat RL does thereResources management in computer clustersDecide which tasks to run on which servers (states = system load, actions = task assignment, reward = throughput/latency)Traffic light controlOptimize light timing to reduce traffic (states = car queues, actions = light changes, reward = less waiting)Web system configurationAuto-tune system parameters (states = system metrics, actions = parameter changes, reward = performance)ChemistryDiscover new molecules / reactions (states = molecular structure, actions = chemical modifications, reward = desired properties)Personalized recommendationsPick content/products to show (states = user context, actions = item to recommend, reward = clicks/satisfaction)Bidding and advertisingDecide ad bids in real-time (states = market conditions, actions = bid amounts, reward = profit)
+
+💡 The pattern: anywhere there's a sequence of decisions and a way to measure success, RL can apply. It's the universal trial-and-error learning framework.

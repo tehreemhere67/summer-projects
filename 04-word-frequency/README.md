@@ -1,0 +1,2 @@
+# word frequency
+This program reads a .txt file, counts every word, throws away boring ones like "the", "a", "is", "and" (because they appear in everything and mean nothing), and then shows you the most frequent meaningful words as a bar chart in the terminal. 
