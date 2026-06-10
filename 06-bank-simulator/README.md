@@ -1,0 +1,2 @@
+# bank simulator
+It's a simulation of a basic banking system you run in the terminal. You can create bank accounts, deposit money, withdraw money, and check your balance. A savings account additionally earns interest. Every transaction gets recorded with a timestamp so you can see your full history.
