@@ -1,0 +1,2 @@
+# news-scraper
+This program goes to a website, grabs all the headlines from the page (web scraping), saves them to a file, and removes duplicates. You can run it repeatedly and it keeps building up a collection of headlines over time.
