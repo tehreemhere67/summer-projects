@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>My Notes</h2>
+
+<form method="POST" action="/add_note">
+    <input name="note" placeholder="Write a note..." required>
+    <button type="submit">Add Note</button>
+</form>
+
+<hr>
+
+{% if notes %}
+    {% for note in notes %}
+    <div style="border:1px solid #ccc; padding:10px; margin:8px 0;">
+        <p>{{ note[0] }}</p>
+        <form method="POST" action="/delete_note">
+            <input type="hidden" name="note_id" value="{{ note[1] }}">
+            <button type="submit">Delete</button>
+        </form>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>No notes yet.</p>
+{% endif %}
+{% endblock %}

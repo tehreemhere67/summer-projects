@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notes App</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+        input { display: block; margin: 8px 0; padding: 8px; width: 100%; }
+        button { padding: 8px 16px; background: #333; color: white; border: none; cursor: pointer; }
+        a { color: #333; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/register">Register</a> |
+        <a href="/login">Login</a> |
+        <a href="/notes">My Notes</a> |
+        <a href="/logout">Logout</a>
+    </nav>
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>
