@@ -1,0 +1,2 @@
+# Book Library REST API
+A REST API built with Flask and SQLite for managing a book library. Supports full CRUD operations — get all books, get a single book, add, update, and delete. Returns JSON responses with appropriate HTTP status codes.
