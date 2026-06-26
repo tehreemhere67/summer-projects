@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shortest Walking Route Finder</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+        #controls {
+            padding: 16px;
+            background: #1a1a2e;
+            color: white;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        #controls h2 { font-size: 16px; margin-right: 8px; }
+        select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+            background: #16213e;
+            color: white;
+        }
+        button {
+            padding: 8px 20px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        button:hover { background: #c73652; }
+        #info {
+            padding: 10px 16px;
+            background: #0f3460;
+            color: white;
+            font-size: 14px;
+            min-height: 40px;
+        }
+        #map { flex: 1; }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <h2>🚶 Shortest Walking Route Finder</h2>
+        <select id="origin">
+            <option value="">Select Origin</option>
+            {% for loc in locations %}
+            <option value="{{ loc }}">{{ loc }}</option>
+            {% endfor %}
+        </select>
+        <select id="destination">
+            <option value="">Select Destination</option>
+            {% for loc in locations %}
+            <option value="{{ loc }}">{{ loc }}</option>
+            {% endfor %}
+        </select>
+        <button onclick="findRoute()">Find Walking Route</button>
+    </div>
+    <div id="info">Select origin and destination to find the shortest walking route.</div>
+    <div id="map"></div>
+
+    <script>
+        const map = L.map('map', { maxZoom: 22 }).setView([24.9408, 67.1135], 17);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 22,
+            maxNativeZoom: 19
+        }).addTo(map);
+
+        let routeLayer = null;
+        let markerLayer = [];
+
+        async function findRoute() {
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+
+            if (!origin || !destination) {
+                document.getElementById('info').textContent = 'Please select both origin and destination.';
+                return;
+            }
+
+            if (origin === destination) {
+                document.getElementById('info').textContent = 'Origin and destination cannot be the same.';
+                return;
+            }
+
+            document.getElementById('info').textContent = 'Finding shortest walking route...';
+
+            const response = await fetch('/route', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ origin, destination })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                document.getElementById('info').textContent = 'Error: ' + data.error;
+                return;
+            }
+
+            if (routeLayer) map.removeLayer(routeLayer);
+            markerLayer.forEach(m => map.removeLayer(m));
+            markerLayer = [];
+
+            routeLayer = L.polyline(data.coordinates, {
+                color: '#e94560',
+                weight: 5,
+                opacity: 0.8
+            }).addTo(map);
+
+            const startMarker = L.marker(data.coordinates[0])
+                .bindPopup(`<b>🚶 START</b><br>${data.origin}`)
+                .addTo(map)
+                .openPopup();
+            markerLayer.push(startMarker);
+
+            const endCoord = data.coordinates[data.coordinates.length - 1];
+            const endMarker = L.marker(endCoord)
+                .bindPopup(`<b>🏁 END</b><br>${data.destination}`)
+                .addTo(map);
+            markerLayer.push(endMarker);
+
+            map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
+
+            document.getElementById('info').textContent =
+                `🚶 ${data.origin} → ${data.destination} | ${data.distance}m | ~${data.minutes} min walking`;
+        }
+    </script>
+</body>
+</html>
