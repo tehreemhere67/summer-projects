@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rate Movies</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0a0a0f; color: #e8e8f0; padding: 40px 20px; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        p { color: #888; margin-bottom: 30px; }
+        .progress { color: #f97316; font-weight: bold; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 40px; }
+        .card {
+            background: #13131c;
+            border: 1px solid #1e1e2e;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .card h3 { font-size: 14px; margin-bottom: 12px; line-height: 1.4; }
+        .stars { display: flex; gap: 6px; }
+        .stars input { display: none; }
+        .stars label {
+            font-size: 24px;
+            cursor: pointer;
+            color: #444;
+            transition: color 0.1s;
+        }
+        .stars input:checked ~ label { color: #444; }
+        .stars label:hover,
+        .stars label:hover ~ label { color: #444; }
+        .stars input:checked + label,
+        .stars input:checked ~ label { color: #444; }
+        .rating-group { display: flex; flex-direction: row-reverse; }
+        .rating-group input:checked ~ label,
+        .rating-group label:hover,
+        .rating-group label:hover ~ label { color: #f97316; }
+        .skip { font-size: 12px; color: #555; cursor: pointer; margin-top: 8px; display: inline-block; }
+        .skip:hover { color: #888; }
+        button {
+            padding: 14px 40px;
+            background: #f97316;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+        button:hover { background: #ea6c0a; }
+        #counter { color: #f97316; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Rate Movies You've Seen</h1>
+    <p>Rate at least 15 movies to get personalized recommendations. Skip ones you haven't seen.</p>
+    <div class="progress">Rated: <span id="counter">0</span> / 15 minimum</div>
+
+    <form method="POST" action="/genres" id="rateForm">
+        <div class="grid">
+            {% for movie in movies %}
+            <div class="card">
+                <h3>{{ movie.title }}</h3>
+                <div class="rating-group">
+                    <input type="radio" name="{{ movie.movie_id }}" id="s5_{{ movie.movie_id }}" value="5">
+                    <label for="s5_{{ movie.movie_id }}">★</label>
+                    <input type="radio" name="{{ movie.movie_id }}" id="s4_{{ movie.movie_id }}" value="4">
+                    <label for="s4_{{ movie.movie_id }}">★</label>
+                    <input type="radio" name="{{ movie.movie_id }}" id="s3_{{ movie.movie_id }}" value="3">
+                    <label for="s3_{{ movie.movie_id }}">★</label>
+                    <input type="radio" name="{{ movie.movie_id }}" id="s2_{{ movie.movie_id }}" value="2">
+                    <label for="s2_{{ movie.movie_id }}">★</label>
+                    <input type="radio" name="{{ movie.movie_id }}" id="s1_{{ movie.movie_id }}" value="1">
+                    <label for="s1_{{ movie.movie_id }}">★</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" onclick="return validateForm()">Next: Select Genres →</button>
+    </form>
+
+    <script>
+        let ratedCount = 0;
+        const counter = document.getElementById('counter');
+
+        document.querySelectorAll('input[type="radio"]').forEach(input => {
+            input.addEventListener('change', () => {
+                ratedCount = document.querySelectorAll('input[type="radio"]:checked').length;
+                counter.textContent = ratedCount;
+            });
+        });
+
+        function validateForm() {
+            if (ratedCount < 15) {
+                alert(`Please rate at least 15 movies. You've rated ${ratedCount} so far.`);
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

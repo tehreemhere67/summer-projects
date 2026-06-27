@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Recommendations</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0a0a0f; color: #e8e8f0; padding: 40px 20px; max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        p { color: #888; margin-bottom: 30px; }
+        .genres { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 30px; }
+        .genre-tag {
+            background: #1a120a;
+            border: 1px solid #f97316;
+            color: #f97316;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-bottom: 40px; }
+        .card {
+            background: #13131c;
+            border: 1px solid #1e1e2e;
+            border-top: 3px solid #f97316;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .card h3 { font-size: 15px; line-height: 1.4; }
+        .num {
+            font-size: 11px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 30px;
+            background: #13131c;
+            border: 1px solid #1e1e2e;
+            color: #e8e8f0;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+        a:hover { border-color: #f97316; }
+    </style>
+</head>
+<body>
+    <h1>Your Recommendations</h1>
+    {% if genres %}
+    <p>Based on your ratings and preferred genres:</p>
+    <div class="genres">
+        {% for genre in genres %}
+        <span class="genre-tag">{{ genre }}</span>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>Based on your ratings:</p>
+    {% endif %}
+
+    <div class="grid">
+        {% for movie in movies %}
+        <div class="card">
+            <div class="num">#{{ loop.index }}</div>
+            <h3>{{ movie.title }}</h3>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not movies %}
+    <p>No recommendations found. Try selecting different genres or rating more movies.</p>
+    {% endif %}
+
+    <a href="/">← Start Over</a>
+</body>
+</html>

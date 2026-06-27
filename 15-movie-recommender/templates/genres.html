@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Genres</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0a0a0f; color: #e8e8f0; padding: 40px 20px; max-width: 700px; margin: 0 auto; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        p { color: #888; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 40px; }
+        .genre-card {
+            background: #13131c;
+            border: 2px solid #1e1e2e;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .genre-card input { display: none; }
+        .genre-card label {
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .genre-card:has(input:checked) {
+            border-color: #f97316;
+            background: #1a120a;
+        }
+        button {
+            padding: 14px 40px;
+            background: #f97316;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+        button:hover { background: #ea6c0a; }
+    </style>
+</head>
+<body>
+    <h1>Select Your Favourite Genres</h1>
+    <p>Pick the genres you enjoy most. We'll combine this with your ratings to recommend movies.</p>
+
+    <form method="POST" action="/recommend">
+        <div class="grid">
+            {% for genre in genres %}
+            <div class="genre-card">
+                <input type="checkbox" name="genres" value="{{ genre }}" id="g_{{ genre }}">
+                <label for="g_{{ genre }}">{{ genre }}</label>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit">Get Recommendations →</button>
+    </form>
+
+    <script>
+        document.querySelectorAll('.genre-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const input = card.querySelector('input');
+                input.checked = !input.checked;
+            });
+        });
+    </script>
+</body>
+</html>
